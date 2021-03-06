@@ -1,0 +1,89 @@
+Install Nexus 3 on Ubuntu–
+SonaType Nexus3 is java based application. Nexus3 is one of the popular binary repository managers, used for storing build artifacts such as Jars,WARs, EARs.
+
+Step by step Installation guide to install Nexus on Ubuntu –
+
+Java Installation (Java is prerequisite for nexus installation)
+
+1. Java
+sudo apt-get update
+sudo apt install openjdk-8-jdk openjdk-8-jre
+
+Execute the below commands – navigate to /opt directory by changing directory:
+cd /opt
+
+2. Download Nexus
+sudo wget http://download.sonatype.com/nexus/3/nexus-3.22.0-02-unix.tar.gz
+
+3. Extract Nexus
+sudo tar -xvf nexus-3.22.0-02-unix.tar.gz
+sudo mv nexus-3.22.0-02 nexus
+
+4. Create a user called Nexus
+sudo adduser nexus
+
+
+provide a password which you can remember at later stage.
+
+5. Give permission to Nexus user
+sudo chown -R nexus:nexus /opt/nexus
+sudo chown -R nexus:nexus /opt/sonatype-work
+
+6. sudo vi /opt/nexus/bin/nexus.rc
+
+Do some modification such as –
+
+run_as_user=”nexus”
+
+7. Modify memory settings
+sudo vi /opt/nexus/bin/nexus.vmoptions:
+Add all the below changes the file with below highlighted entry-
+
+-Xms512m
+-Xms512m
+-XX:MaxDirectMemorySize=512m
+-XX:+UnlockDiagnosticVMOptions
+
+8.Configure Nexus to run as a service
+sudo vi /etc/systemd/system/nexus.service
+
+Copy below content-
+
+[Unit]
+Description=nexus service
+After=network.target
+[Service]
+Type=forking
+LimitNOFILE=65536
+User=nexus
+Group=nexus
+ExecStart=/opt/nexus/bin/nexus start
+ExecStop=/opt/nexus/bin/nexus stop
+User=nexus
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target
+Now Start Nexus
+sudo systemctl enable nexus
+sudo systemctl start nexus
+sudo systemctl status nexus
+
+
+If after doing all above steps, still nexus not started then check the logs using below commands-
+
+9. tail -f /opt/sonatype-work/nexus3/log/nexus.log
+
+Once Nexus is successfully installed, you can access it in the browser by
+URL – http://ip-address:8081
+
+
+10. Now click on Sign in, enter admin as user name and password by executing below cat command.
+
+cat /opt/sonatype-work/nexus3/admin.password
+Now change admin password as admin1234
+
+Now click next, do not check Enable anonymous access.
+
+Click on Finish button.
+
+Now login with user name/password is admin/admin1234.
